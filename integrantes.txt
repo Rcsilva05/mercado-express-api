@@ -1,0 +1,20 @@
+CHECKPOINT 4 - PARTE 1 (API e Deploy)
+Curso: Tecnologia em Analise e Desenvolvimento de Sistemas (TDS) - FIAP
+Professor: Dr. Marcel Stefan Wagner
+Turma: [PREENCHER COM O CODIGO DA TURMA - ex: 1TDSPY]
+
+INTEGRANTES DO GRUPO:
+Rodrigo Carvalho Silva   - RM: 565162
+Nickolas Davi            - RM: 564105
+Samara Vilela            - RM: 566133
+Natalia Cristina         - RM: 564099
+Otavio Ferreira          - RM: 565960
+
+LINK DO GITHUB (com o ReadMe do projeto):
+[PREENCHER -> ex: https://github.com/SEU_USUARIO/mercado-express-api]
+
+LINK DO DEPLOY (colocado tambem no ReadMe do GitHub):
+[PREENCHER -> ex: https://mercado-express-api.onrender.com]
+
+IDE UTILIZADA PARA ELABORACAO DO PROJETO:
+IntelliJ IDEA
