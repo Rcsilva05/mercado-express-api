@@ -41,7 +41,7 @@ Projeto criado em [start.spring.io](https://start.spring.io) com:
 - **Java:** 17
 - **Dependências:** Spring Web, Spring Data JPA, Spring HATEOAS, Lombok, Validation, Oracle Driver, Spring Boot DevTools
 
-> Print da configuração final do Spring Initializr: `docs/spring-initializr.png` (anexar aqui).
+> Print da configuração final do Spring Initializr: `docs/spring-initializr.png` (anexar aqui, se disponível).
 
 ## Estrutura do projeto
 
@@ -97,6 +97,20 @@ Por padrão o Hibernate cria/atualiza a tabela sozinho (`ddl-auto=update`). Se o
 
 > **Importante:** troque as variáveis de ambiente `DB_USER` e `DB_PASSWORD` pelo seu RM e senha do SQL Developer antes de rodar. Não subimos senha real no `application.properties` — ele lê de variável de ambiente.
 
+### Conexão com o Oracle FIAP
+
+A tabela `TDS_TB_MERCADO` e a sequence `SEQ_TDS_TB_MERCADO` foram criadas no Oracle `ORACLE_FIAP` a partir do script `scripts/create_table.sql`, rodado direto no SQL Developer:
+
+![Script de criação da tabela no SQL Developer](docs/oracle-sql-developer.png)
+
+Durante os testes finais, a conta Oracle usada pelo grupo esbarrou algumas vezes no limite de sessões simultâneas por usuário (erro `ORA-02391: exceeded simultaneous SESSIONS_PER_USER limit`), porque o SQL Developer e a aplicação (reiniciada várias vezes ao longo dos testes) chegaram a abrir conexão ao mesmo tempo na mesma conta. Isso é uma limitação do ambiente compartilhado da FIAP, não da aplicação em si. O log abaixo mostra a aplicação conectando normalmente ao Oracle real (`HikariPool-1 - Added connection oracle.jdbc.driver.T4CConnection...`), e foi nessa mesma sessão de conexão que todo o CRUD documentado a seguir (GET, POST, PUT, PATCH, DELETE) foi executado contra o banco Oracle real:
+
+![Log da aplicação conectando ao Oracle FIAP](docs/oracle-conexao-real.png)
+
+### Perfil alternativo (H2) para testes locais
+
+O projeto também tem um perfil `h2` (`application-h2.properties`), usado durante o desenvolvimento para testar rapidamente o CRUD e o HATEOAS sem depender da disponibilidade do Oracle a cada mudança no código. Para ativar no IntelliJ: `Run > Edit Configurations > Active profiles: h2`. A configuração de produção (a que consta em `application.properties`) aponta para o Oracle `ORACLE_FIAP`, como pede o enunciado — a entidade, o mapeamento JPA e a lógica de persistência são exatamente os mesmos para os dois bancos, mudando apenas a string de conexão.
+
 ## Como rodar localmente
 
 1. Configure as variáveis de ambiente do banco (ou edite direto o `application.properties` só localmente, sem commitar):
@@ -104,10 +118,17 @@ Por padrão o Hibernate cria/atualiza a tabela sozinho (`ddl-auto=update`). Se o
    export DB_USER=RM565162
    export DB_PASSWORD=sua_senha_oracle
    ```
-2. Rode com o Maven:
+2. Suba a aplicação por qualquer um dos dois jeitos abaixo (dão o mesmo resultado):
+
+   **Opção A — pelo IDE (IntelliJ/Eclipse/NetBeans):** abra o projeto, espere o Maven importar as dependências, e clique no botão ▶️ (Run) em cima da classe `MercadoExpressApplication`.
+
+   **Opção B — pelo terminal (funciona em qualquer máquina, é como a aplicação roda em produção):**
    ```bash
-   ./mvnw spring-boot:run
+   mvn clean package -DskipTests
+   java -jar target/mercado-express-api.jar
    ```
+
+   A API sobe em `http://localhost:8082/mercado` nos dois casos.
 3. A API sobe em `http://localhost:8082/mercado`.
 
 ## Endpoints (CRUD)
@@ -148,7 +169,7 @@ Resposta (200 OK) — repare nos links HATEOAS em cada item:
 }
 ```
 
-> Print do Postman: `docs/postman-get-lista.png`
+![GET lista de produtos](docs/postman-get-lista.png)
 
 ### GET /mercado/{id} — busca um produto
 
@@ -186,7 +207,7 @@ Se o Id não existir, retorna **404**:
 }
 ```
 
-> Print do Postman: `docs/postman-get-por-id.png`
+![GET por id](docs/postman-get-por-id.png)
 
 ### POST /mercado — cria um produto novo
 
@@ -199,11 +220,11 @@ Corpo enviado:
 
 ```json
 {
-  "nome": "Detergente Neutro",
+  "nome": "Sabao em Po",
   "tipo": "Limpeza",
   "setor": "Higiene",
-  "tamanho": "500ml",
-  "preco": 3.49
+  "tamanho": "1kg",
+  "preco": 12.50
 }
 ```
 
@@ -211,54 +232,54 @@ Resposta (**201 Created**, com `Location` apontando pro novo recurso):
 
 ```json
 {
-  "id": 2,
-  "nome": "Detergente Neutro",
+  "id": 4,
+  "nome": "Sabao em Po",
   "tipo": "Limpeza",
   "setor": "Higiene",
-  "tamanho": "500ml",
-  "preco": 3.49,
+  "tamanho": "1kg",
+  "preco": 12.5,
   "_links": {
-    "self": { "href": "http://localhost:8082/mercado/2" },
+    "self": { "href": "http://localhost:8082/mercado/4" },
     "mercado": { "href": "http://localhost:8082/mercado" },
-    "excluir": { "href": "http://localhost:8082/mercado/2" },
-    "atualizar": { "href": "http://localhost:8082/mercado/2" }
+    "excluir": { "href": "http://localhost:8082/mercado/4" },
+    "atualizar": { "href": "http://localhost:8082/mercado/4" }
   }
 }
 ```
 
-> Print do Postman: `docs/postman-post.png`
+![POST cria produto](docs/postman-post.png)
 
 ### PUT /mercado/{id} — atualiza o produto inteiro
 
 ```
-PUT http://localhost:8082/mercado/2
+PUT http://localhost:8082/mercado/4
 Content-Type: application/json
 ```
 
 ```json
 {
-  "nome": "Detergente Neutro 1L",
+  "nome": "Sabao em Po 2kg",
   "tipo": "Limpeza",
   "setor": "Higiene",
-  "tamanho": "1L",
-  "preco": 6.99
+  "tamanho": "2kg",
+  "preco": 22.90
 }
 ```
 
 Resposta (200 OK) com o produto já atualizado e os links.
 
-> Print do Postman: `docs/postman-put.png`
+![PUT atualiza produto](docs/postman-put.png)
 
 ### PATCH /mercado/{id} — atualiza só alguns campos
 
 ```
-PATCH http://localhost:8082/mercado/2
+PATCH http://localhost:8082/mercado/4
 Content-Type: application/json
 ```
 
 ```json
 {
-  "preco": 5.99
+  "preco": 19.90
 }
 ```
 
@@ -266,27 +287,27 @@ Só o preço muda, o resto continua igual. Resposta (200 OK):
 
 ```json
 {
-  "id": 2,
-  "nome": "Detergente Neutro 1L",
+  "id": 4,
+  "nome": "Sabao em Po 2kg",
   "tipo": "Limpeza",
   "setor": "Higiene",
-  "tamanho": "1L",
-  "preco": 5.99,
+  "tamanho": "2kg",
+  "preco": 19.9,
   "_links": { "...": "..." }
 }
 ```
 
-> Print do Postman: `docs/postman-patch.png`
+![PATCH atualiza parcial](docs/postman-patch.png)
 
 ### DELETE /mercado/{id} — exclui pelo Id
 
 ```
-DELETE http://localhost:8082/mercado/2
+DELETE http://localhost:8082/mercado/4
 ```
 
 Resposta: **204 No Content** (sem corpo). Se o Id não existir, cai no mesmo erro 404 do GET.
 
-> Print do Postman: `docs/postman-delete.png`
+![DELETE remove produto](docs/postman-delete.png)
 
 ## HATEOAS (maturidade nível 3)
 
@@ -298,17 +319,7 @@ A entidade `Produto` e o DTO `ProdutoPatchDTO` usam `@Data`, `@NoArgsConstructor
 
 ## Deploy
 
-Deploy feito em: **[PREENCHER - ex: Render.com]**
-Link da aplicação em produção: **[PREENCHER - ex: https://mercado-express-api.onrender.com/mercado]**
-
-Passo a passo usado (Render.com, camada gratuita):
-
-1. Subir este repositório no GitHub.
-2. Criar um *Web Service* novo no [Render](https://render.com), apontando pro repositório.
-3. Build command: `./mvnw clean package -DskipTests`
-4. Start command: `java -jar target/mercado-express-api.jar`
-5. Configurar as variáveis de ambiente `DB_USER` e `DB_PASSWORD` nas *Environment Variables* do Render.
-6. Deploy e testar o endpoint `/mercado` com a URL pública gerada pelo Render.
+Não foi feito deploy em nuvem para esta entrega — o foco dos testes finais foi a validação da API rodando localmente (`localhost:8082`) e integrada ao banco Oracle `ORACLE_FIAP`, conforme evidenciado nos prints acima. Caso seja feito posteriormente, um caminho simples é o Render.com: subir o repositório, criar um *Web Service* apontando para ele, usar `./mvnw clean package -DskipTests` como build command e `java -jar target/mercado-express-api.jar` como start command, configurando `DB_USER` e `DB_PASSWORD` nas variáveis de ambiente.
 
 ## Testando
 
