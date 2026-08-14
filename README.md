@@ -41,7 +41,7 @@ Projeto criado em [start.spring.io](https://start.spring.io) com:
 - **Java:** 17
 - **Dependências:** Spring Web, Spring Data JPA, Spring HATEOAS, Lombok, Validation, Oracle Driver, Spring Boot DevTools
 
-> Print da configuração final do Spring Initializr: `docs/spring-initializr.png` (anexar aqui, se disponível).
+![Configuração do Spring Initializr](docs/spring-initializr.png)
 
 ## Estrutura do projeto
 
