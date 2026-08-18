@@ -1,6 +1,6 @@
 # Mercado Express API
 
-Checkpoint 4 - Parte 1 (API e Deploy) - Tecnologia em Análise e Desenvolvimento de Sistemas (TDS) - FIAP
+Checkpoint 4 - Parte 1. (API e Deploy) - Tecnologia em Análise e Desenvolvimento de Sistemas (TDS) - FIAP
 Professor: Dr. Marcel Stefan Wagner
 
 API REST feita em **Spring Boot** para um mercado express (meias, produtos de limpeza, frutas, etc), com persistência no **Oracle (ORACLE_FIAP)** via JPA/Hibernate, **Lombok** e retorno no padrão **HATEOAS** (maturidade nível 3).
