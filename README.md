@@ -1,6 +1,6 @@
 # Mercado Express API
 
-Checkpoint 4 - Parte 1. (API e Deploy) - Tecnologia em Análise e Desenvolvimento de Sistemas (TDS) - FIAP
+Checkpoint 4 - Parte 1 (API e Deploy) - Tecnologia em Análise e Desenvolvimento de Sistemas (TDS) - FIAP
 Professor: Dr. Marcel Stefan Wagner
 
 API REST feita em **Spring Boot** para um mercado express (meias, produtos de limpeza, frutas, etc), com persistência no **Oracle (ORACLE_FIAP)** via JPA/Hibernate, **Lombok** e retorno no padrão **HATEOAS** (maturidade nível 3).
@@ -319,11 +319,19 @@ A entidade `Produto` e o DTO `ProdutoPatchDTO` usam `@Data`, `@NoArgsConstructor
 
 ## Deploy
 
-Não foi feito deploy em nuvem para esta entrega — o foco dos testes finais foi a validação da API rodando localmente (`localhost:8082`) e integrada ao banco Oracle `ORACLE_FIAP`, conforme evidenciado nos prints acima. Caso seja feito posteriormente, um caminho simples é o Render.com: subir o repositório, criar um *Web Service* apontando para ele, usar `./mvnw clean package -DskipTests` como build command e `java -jar target/mercado-express-api.jar` como start command, configurando `DB_USER` e `DB_PASSWORD` nas variáveis de ambiente.
+A API está publicada no Render.com, rodando em container Docker (build multi-stage: compila com Maven na primeira etapa e roda com JRE 17 na segunda), conectada ao Oracle `ORACLE_FIAP` real:
+
+**URL:** [https://mercado-express-api-dz7w.onrender.com/mercado](https://mercado-express-api-dz7w.onrender.com/mercado)
+
+```
+GET https://mercado-express-api-dz7w.onrender.com/mercado
+```
+
+As variáveis `DB_USER` e `DB_PASSWORD` foram configuradas direto no ambiente do Render, sem expor credenciais no código. Por ser plano gratuito, a instância "dorme" após um tempo sem uso — a primeira requisição depois disso pode levar de 30 a 60 segundos até responder, o que é comportamento esperado do tier free e não um erro da aplicação.
 
 ## Testando
 
-Coleção de testes recomendada no Postman/Insomnia: importar os exemplos de JSON acima em cada verbo (GET, POST, PUT, PATCH, DELETE) usando a base `http://localhost:8082/mercado` (local) ou a URL do deploy.
+Coleção de testes recomendada no Postman/Insomnia: importar os exemplos de JSON acima em cada verbo (GET, POST, PUT, PATCH, DELETE) usando a base `http://localhost:8082/mercado` (local) ou `https://mercado-express-api-dz7w.onrender.com/mercado` (deploy).
 
 Também dá pra testar rápido pela linha de comando:
 
